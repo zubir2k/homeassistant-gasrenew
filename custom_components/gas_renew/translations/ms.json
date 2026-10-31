@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Tambah tong gas LPG",
+        "description": "Gas Renew menganggar baki gas berdasarkan bilangan hari sejak tong terakhir ditukar.",
+        "data": {
+          "name": "Nama",
+          "cylinder_kg": "Saiz tong (kg)",
+          "duration": "Jangka hayat dijangka (hari)",
+          "last_change": "Tukar terakhir",
+          "previous_change": "Tukar sebelumnya (pilihan)"
+        },
+        "data_description": {
+          "duration": "Berapa lama tong penuh biasanya bertahan. Auto-belajar akan memperhalusi nilai ini setiap kali anda tekan Renew.",
+          "previous_change": "Jika diketahui, jarak antara dua tarikh ini digunakan sebagai data awal auto-belajar."
+        }
+      }
+    },
+    "error": {
+      "invalid_size": "Masukkan saiz tong antara 1 hingga 100 kg.",
+      "future_date": "Tarikh tukar terakhir tidak boleh pada masa hadapan.",
+      "previous_after_last": "Tarikh tukar sebelumnya mesti sebelum tarikh tukar terakhir."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Tetapan Gas Renew",
+        "data": {
+          "threshold_medium": "Sederhana pada atau bawah (%)",
+          "threshold_low": "Rendah pada atau bawah (%)",
+          "threshold_critical": "Kritikal pada atau bawah (%)",
+          "m3_per_kg": "Isipadu gas sekilogram (m³)",
+          "auto_learn": "Auto-belajar jangka hayat daripada penukaran tong",
+          "learn_samples": "Bilangan tong untuk dipuratakan"
+        },
+        "data_description": {
+          "m3_per_kg": "Lebih kurang 0.54 untuk propana; campuran yang lebih banyak butana lebih rendah. Menukar nilai ini akan mengubah jumlah di papan pemuka Tenaga.",
+          "learn_samples": "Jangka hayat dikira sebagai purata bagi bilangan tong terkini ini."
+        }
+      }
+    },
+    "error": {
+      "thresholds_order": "Had mesti mengikut urutan Kritikal < Rendah < Sederhana."
+    }
+  },
+  "selector": {
+    "cylinder_kg": {
+      "options": {
+        "12": "12 kg",
+        "14": "14 kg",
+        "50": "50 kg"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "level": {
+        "name": "Tahap",
+        "state": {
+          "full": "Penuh",
+          "medium": "Sederhana",
+          "low": "Rendah",
+          "critical": "Kritikal"
+        }
+      },
+      "remaining": {
+        "name": "Baki"
+      },
+      "remaining_gas": {
+        "name": "Baki gas"
+      },
+      "consumption": {
+        "name": "Penggunaan gas"
+      },
+      "daily_usage": {
+        "name": "Purata penggunaan harian"
+      },
+      "expected_empty": {
+        "name": "Dijangka habis"
+      },
+      "days_in_use": {
+        "name": "Hari digunakan"
+      }
+    },
+    "button": {
+      "renew": {
+        "name": "Renew"
+      }
+    },
+    "number": {
+      "duration": {
+        "name": "Jangka hayat dijangka"
+      }
+    },
+    "date": {
+      "last_change": {
+        "name": "Tukar terakhir"
+      },
+      "previous_change": {
+        "name": "Tukar sebelumnya"
+      }
+    },
+    "calendar": {
+      "refills": {
+        "name": "Penukaran tong"
+      }
+    }
+  },
+  "services": {
+    "renew": {
+      "name": "Renew",
+      "description": "Tandakan bahawa tong gas baharu telah dipasang.",
+      "fields": {
+        "entity_id": {
+          "name": "Entiti",
+          "description": "Mana-mana entiti Gas Renew bagi tong ini."
+        },
+        "date": {
+          "name": "Tarikh",
+          "description": "Tarikh tong ditukar. Lalai: hari ini."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "not_gas_renew_entity": {
+      "message": "{entity_id} bukan entiti Gas Renew."
+    }
+  }
+}

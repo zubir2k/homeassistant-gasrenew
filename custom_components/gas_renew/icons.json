@@ -1,0 +1,61 @@
+{
+  "entity": {
+    "sensor": {
+      "level": {
+        "default": "mdi:gas-cylinder",
+        "state": {
+          "full": "mdi:gauge-full",
+          "medium": "mdi:gauge",
+          "low": "mdi:gauge-low",
+          "critical": "mdi:gauge-empty"
+        }
+      },
+      "remaining": {
+        "default": "mdi:gas-cylinder"
+      },
+      "remaining_gas": {
+        "default": "mdi:weight-kilogram"
+      },
+      "consumption": {
+        "default": "mdi:fire"
+      },
+      "daily_usage": {
+        "default": "mdi:chart-line"
+      },
+      "expected_empty": {
+        "default": "mdi:calendar-alert"
+      },
+      "days_in_use": {
+        "default": "mdi:calendar-clock"
+      }
+    },
+    "button": {
+      "renew": {
+        "default": "mdi:gas-cylinder"
+      }
+    },
+    "number": {
+      "duration": {
+        "default": "mdi:calendar-range"
+      }
+    },
+    "date": {
+      "last_change": {
+        "default": "mdi:calendar-check"
+      },
+      "previous_change": {
+        "default": "mdi:calendar-arrow-left"
+      }
+    },
+    "calendar": {
+      "refills": {
+        "default": "mdi:calendar-sync"
+      }
+    }
+  },
+  "services": {
+    "renew": {
+      "service": "mdi:gas-cylinder"
+    }
+  }
+}

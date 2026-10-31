@@ -1,0 +1,68 @@
+blueprint:
+  name: Gas Renew - low gas alert
+  description: >-
+    Notify when an LPG cylinder drops to Low or Critical, and a set number of
+    days before it is expected to run out.
+  domain: automation
+  source_url: https://github.com/zubir2k/homeassistant-gasrenew/blob/main/blueprints/automation/gas_renew/gas_low_alert.yaml
+  input:
+    level_sensor:
+      name: Level sensor
+      selector:
+        entity:
+          filter:
+            - integration: gas_renew
+              domain: sensor
+    empty_sensor:
+      name: Expected empty sensor
+      selector:
+        entity:
+          filter:
+            - integration: gas_renew
+              domain: sensor
+              device_class: timestamp
+    days_before:
+      name: Days before expected empty
+      default: 14
+      selector:
+        number:
+          min: 0
+          max: 60
+          unit_of_measurement: days
+    notify_time:
+      name: Time for the early reminder
+      default: "09:00:00"
+      selector:
+        time:
+    actions:
+      name: Actions
+      description: What to do, for example send a notification.
+      selector:
+        action:
+
+mode: single
+
+variables:
+  level_sensor: !input level_sensor
+  days_before: !input days_before
+  empty_sensor: !input empty_sensor
+
+triggers:
+  - trigger: state
+    entity_id: !input level_sensor
+    to: ["low", "critical"]
+  - trigger: time
+    at: !input notify_time
+    id: early
+
+conditions:
+  - condition: or
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.id != 'early' }}"
+      - condition: template
+        value_template: >-
+          {{ (as_datetime(states(empty_sensor)) | as_local).date()
+             == (now() + timedelta(days=days_before | int)).date() }}
+
+actions: !input actions

@@ -1,0 +1,12 @@
+renew:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: gas_renew
+          multiple: true
+    date:
+      required: false
+      selector:
+        date:

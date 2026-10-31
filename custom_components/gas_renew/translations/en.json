@@ -1,0 +1,132 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add an LPG cylinder",
+        "description": "Gas Renew estimates how much gas is left from the days since you last changed the cylinder.",
+        "data": {
+          "name": "Name",
+          "cylinder_kg": "Cylinder size (kg)",
+          "duration": "Expected duration (days)",
+          "last_change": "Last change",
+          "previous_change": "Previous change (optional)"
+        },
+        "data_description": {
+          "duration": "How long a full cylinder usually lasts you. Auto-learn refines this every time you press Renew.",
+          "previous_change": "If you know it, the gap between the two dates seeds auto-learn."
+        }
+      }
+    },
+    "error": {
+      "invalid_size": "Enter a cylinder size between 1 and 100 kg.",
+      "future_date": "The last change can't be in the future.",
+      "previous_after_last": "The previous change must be before the last change."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Gas Renew options",
+        "data": {
+          "threshold_medium": "Medium at or below (%)",
+          "threshold_low": "Low at or below (%)",
+          "threshold_critical": "Critical at or below (%)",
+          "m3_per_kg": "Gas volume per kg (m³)",
+          "auto_learn": "Auto-learn duration from refills",
+          "learn_samples": "Refills to average"
+        },
+        "data_description": {
+          "m3_per_kg": "About 0.54 for propane; butane-rich blends are lower. Changing this rescales the Energy dashboard total.",
+          "learn_samples": "Duration becomes the average of this many most recent cylinders."
+        }
+      }
+    },
+    "error": {
+      "thresholds_order": "Thresholds must go Critical < Low < Medium."
+    }
+  },
+  "selector": {
+    "cylinder_kg": {
+      "options": {
+        "12": "12 kg",
+        "14": "14 kg",
+        "50": "50 kg"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "level": {
+        "name": "Level",
+        "state": {
+          "full": "Full",
+          "medium": "Medium",
+          "low": "Low",
+          "critical": "Critical"
+        }
+      },
+      "remaining": {
+        "name": "Remaining"
+      },
+      "remaining_gas": {
+        "name": "Remaining gas"
+      },
+      "consumption": {
+        "name": "Gas consumption"
+      },
+      "daily_usage": {
+        "name": "Average daily usage"
+      },
+      "expected_empty": {
+        "name": "Expected empty"
+      },
+      "days_in_use": {
+        "name": "Days in use"
+      }
+    },
+    "button": {
+      "renew": {
+        "name": "Renew"
+      }
+    },
+    "number": {
+      "duration": {
+        "name": "Expected duration"
+      }
+    },
+    "date": {
+      "last_change": {
+        "name": "Last change"
+      },
+      "previous_change": {
+        "name": "Previous change"
+      }
+    },
+    "calendar": {
+      "refills": {
+        "name": "Refills"
+      }
+    }
+  },
+  "services": {
+    "renew": {
+      "name": "Renew",
+      "description": "Mark that a fresh cylinder was fitted.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "Any Gas Renew entity of the cylinder."
+        },
+        "date": {
+          "name": "Date",
+          "description": "When it was changed. Defaults to today."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "not_gas_renew_entity": {
+      "message": "{entity_id} is not a Gas Renew entity."
+    }
+  }
+}

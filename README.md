@@ -1,6 +1,10 @@
-<p align="center"><img src="custom_components/gas_renew/brand/icon@2x.png" width="128" alt="Gas Renew"></p>
+# 🔥 Gas Renew
+[![GitHub Repo stars](https://img.shields.io/github/stars/zubir2k/homeassistant-gasrenew?style=social)](https://github.com/zubir2k/homeassistant-gasrenew/stargazers)
+[![hacs_badge](https://img.shields.io/badge/HACS-Integration-41BDF5.svg)](https://github.com/hacs/integration)
+![GitHub all releases](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=Download%20Count&suffix=%20installs&cacheSeconds=15600&url=https://analytics.home-assistant.io/custom_integrations.json&query=$.gas_renew.total)
+[![Buy](https://img.shields.io/badge/Belanja-Coffee-yellow.svg)](https://zubirco.de/buymecoffee)
+[![GitHub Release](https://img.shields.io/github/release/zubir2k/homeassistant-gasrenew.svg)](https://github.com/zubir2k/homeassistant-gasrenew/releases/)
 
-# Gas Renew
 
 Estimate how much LPG is left in your cylinder (tong gas) from the days since you last changed it. No scale or sensor needed. Press **Renew** when you fit a new cylinder, and the integration learns how long your cylinders really last.
 
@@ -56,6 +60,8 @@ entity: sensor.kitchen_lpg_level
 ```
 
 The cylinder fills to the remaining %. Its colour follows the level: teal, then amber at Low, then red at Critical.
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/3518c2bf-22ec-4388-89c2-ca35557e61bb" />
 
 ## Refill calendar
 

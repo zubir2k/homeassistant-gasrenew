@@ -140,6 +140,8 @@ expected empty = today + remaining kg ÷ daily average
 
 ## Card layout
 
+<img width="800" alt="gasrenew" src="https://github.com/user-attachments/assets/33ae210b-7661-475a-a63c-98e6c50c79a3" />
+
 The card editor has a **Layout** option. `full` (default) shows the cylinder, %, bar and dates. `compact` shows only the header, the status message and Renew.
 
 ```yaml

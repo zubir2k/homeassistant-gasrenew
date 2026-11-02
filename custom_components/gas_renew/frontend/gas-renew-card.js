@@ -6,15 +6,15 @@
  *   name: Kitchen LPG                  # optional, defaults to the device name
  *   confirm_renew: true                # optional, ask before renewing
  */
-const CARD_VERSION = "1.1.0";
+const CARD_VERSION = "1.2.1";
 
 const TEXT = {
   en: {
-    renewed: "The gas tank has been renewed today. Awesome!",
+    renewed: (n) => `${n} has been renewed today. Awesome!`,
     good: (d, date) =>
       `Looking good so far. It's been ${d} ${d === 1 ? "day" : "days"} since last change on ${date}.`,
-    warn: (lvl) =>
-      `You really need to consider checking your spare tank now. Current tank is probably <b>${lvl}</b>.`,
+    warn: (n, lvl) =>
+      `You really need to consider checking your spare now. ${n} is probably <b>${lvl}</b>.`,
     left: (kg, size) => `about ${kg} kg left of ${size} kg`,
     day: (d, n) => `Day ${d} of ${n}`,
     empty: "Empty around",
@@ -25,10 +25,10 @@ const TEXT = {
     missing: "Pick the Level sensor of a Gas Renew cylinder.",
   },
   ms: {
-    renewed: "Tong gas telah ditukar hari ini. Syabas!",
+    renewed: (n) => `${n} telah ditukar hari ini. Syabas!`,
     good: (d, date) => `Setakat ini baik. Sudah ${d} hari sejak tong ditukar pada ${date}.`,
-    warn: (lvl) =>
-      `Anda perlu semak tong gas simpanan sekarang. Tong semasa mungkin sudah <b>${lvl}</b>.`,
+    warn: (n, lvl) =>
+      `Anda perlu semak tong gas simpanan sekarang. ${n} mungkin sudah <b>${lvl}</b>.`,
     left: (kg, size) => `lebih kurang ${kg} kg lagi daripada ${size} kg`,
     day: (d, n) => `Hari ${d} daripada ${n}`,
     empty: "Dijangka habis",
@@ -39,6 +39,9 @@ const TEXT = {
     missing: "Pilih sensor Tahap bagi tong Gas Renew.",
   },
 };
+
+const esc = (s) =>
+  String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 const FILL = {
   full: "#00A19A",
@@ -71,7 +74,8 @@ function cylinderSvg(pct, color) {
 class GasRenewCard extends HTMLElement {
   setConfig(config) {
     if (!config.entity) throw new Error("entity is required (the Gas Renew Level sensor)");
-    this._config = { confirm_renew: true, ...config };
+    this._config = { mode: "full", confirm_renew: true, ...config };
+    this._sig = null;
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
     this._sig = null;
   }
@@ -87,7 +91,26 @@ class GasRenewCard extends HTMLElement {
   }
 
   getCardSize() {
-    return 5;
+    return this._config?.mode === "compact" ? 3 : 5;
+  }
+
+  static getConfigForm() {
+    return {
+      schema: [
+        { name: "entity", required: true, selector: { entity: { domain: "sensor", integration: "gas_renew" } } },
+        { name: "name", selector: { text: {} } },
+        {
+          name: "mode",
+          selector: { select: { mode: "dropdown", options: [
+            { value: "full", label: "Full" },
+            { value: "compact", label: "Compact (status message only)" },
+          ] } },
+        },
+        { name: "confirm_renew", selector: { boolean: {} } },
+      ],
+      computeLabel: (s) => ({ entity: "Level sensor", name: "Name", mode: "Layout",
+        confirm_renew: "Confirm before renewing" }[s.name]),
+    };
   }
 
   static getStubConfig(hass) {
@@ -122,6 +145,7 @@ class GasRenewCard extends HTMLElement {
   _render() {
     const t = this._t();
     const st = this._hass.states[this._config.entity];
+    const compact = this._config.mode === "compact";
     if (!st || st.attributes.renew_entity === undefined) {
       this.shadowRoot.innerHTML = `<ha-card><ha-alert alert-type="warning">${t.missing}</ha-alert></ha-card>`;
       return;
@@ -135,9 +159,10 @@ class GasRenewCard extends HTMLElement {
 
     let alertType = "success";
     let msg;
-    if (days === 0) msg = t.renewed;
-    else if (level === "low") { alertType = "warning"; msg = t.warn(lvlText.toUpperCase()); }
-    else if (level === "critical") { alertType = "error"; msg = t.warn(lvlText.toUpperCase()); }
+    const name = esc(this._name(st));
+    if (days === 0) msg = t.renewed(name);
+    else if (level === "low") { alertType = "warning"; msg = t.warn(name, lvlText.toUpperCase()); }
+    else if (level === "critical") { alertType = "error"; msg = t.warn(name, lvlText.toUpperCase()); }
     else msg = t.good(days, this._fmtDate(a.last_change, true));
 
     this.shadowRoot.innerHTML = `
@@ -149,6 +174,7 @@ class GasRenewCard extends HTMLElement {
         .chip { font-weight:700; font-size:.8em; letter-spacing:.04em; padding:4px 12px;
                 border-radius:14px; color:${color}; background:${color}22; }
         .main { display:flex; gap:12px; align-items:center; margin:8px 0 12px; }
+        ha-card.compact .head { margin-bottom:12px; }
         .cyl { width:130px; height:130px; flex:none; }
         .cyl-empty { fill: ${color}26; }
         .pct { font-size:2.6em; font-weight:700; line-height:1; color: var(--primary-text-color); }
@@ -165,13 +191,13 @@ class GasRenewCard extends HTMLElement {
         button:hover { filter: brightness(1.08); }
         button ha-icon { --mdc-icon-size:18px; }
       </style>
-      <ha-card>
+      <ha-card class="${compact ? "compact" : ""}">
         <div class="head">
           <ha-icon icon="mdi:fire"></ha-icon>
-          <div class="title">${this._name(st)}</div>
+          <div class="title">${name}</div>
           <div class="chip">${lvlText.toUpperCase()}</div>
         </div>
-        <div class="main">
+        ${compact ? "" : `<div class="main">
           ${cylinderSvg(pct, color)}
           <div style="flex:1;min-width:0">
             <div class="pct">${pct}%</div>
@@ -182,10 +208,10 @@ class GasRenewCard extends HTMLElement {
               ${t.empty} <b>${this._fmtDate(a.expected_empty, false)}</b>
             </div>
           </div>
-        </div>
+        </div>`}
         <ha-alert alert-type="${alertType}">${msg}</ha-alert>
         <div class="foot">
-          <div class="last">${t.last} ${this._fmtDate(a.last_change, false)}</div>
+          <div class="last">${compact ? "" : `${t.last} ${this._fmtDate(a.last_change, false)}`}</div>
           <button id="renew"><ha-icon icon="mdi:refresh"></ha-icon>${t.renew}</button>
         </div>
       </ha-card>`;

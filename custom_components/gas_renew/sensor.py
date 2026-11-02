@@ -122,5 +122,12 @@ class GasRenewSensor(GasRenewEntity, SensorEntity):
             "previous_change": t.previous_change.isoformat() if t.previous_change else None,
             "expected_empty": expected.date().isoformat(),
             "daily_usage_m3": t.daily_rate_m3,
+            "usage_source": "weight" if t.weight_mode else "runtime" if t.runtime_mode else "duration",
+            "running": t.running if t.runtime_mode else None,
+            "running_count": t.active_count if t.runtime_mode else None,
+            "runtime_hours": round(t.cylinder_runtime_h, 2) if t.runtime_mode else None,
+            "rate_kg_h": round(t.rate_kg_h, 3) if t.runtime_mode else None,
+            "scale_kg": round(t.gross_kg, 2) if t.weight_mode and t.gross_kg is not None else None,
+            "scale_stale": t.weight_stale if t.weight_mode else None,
             "renew_entity": renew_button,
         }

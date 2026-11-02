@@ -33,11 +33,43 @@
           "threshold_critical": "Critical at or below (%)",
           "m3_per_kg": "Gas volume per kg (m³)",
           "auto_learn": "Auto-learn duration from refills",
-          "learn_samples": "Refills to average"
+          "learn_samples": "Refills to average",
+          "usage_source": "Usage source"
         },
         "data_description": {
           "m3_per_kg": "About 0.54 for propane; butane-rich blends are lower. Changing this rescales the Energy dashboard total.",
-          "learn_samples": "Duration becomes the average of this many most recent cylinders."
+          "learn_samples": "Duration becomes the average of this many most recent cylinders.",
+          "usage_source": "Days since change uses the expected duration. Running time counts gas only while a sensor says the cooker is in use. Weight reads a scale under the cylinder."
+        }
+      },
+      "runtime": {
+        "title": "Running time",
+        "description": "Gas is counted only while this sensor says the cooker is in use.",
+        "data": {
+          "runtime_entity": "Running sensors",
+          "runtime_threshold": "Running threshold",
+          "rate_kg_h": "Gas rate per burner while running"
+        },
+        "data_description": {
+          "runtime_entity": "One or more on/off or numeric entities: a cooker hood sensor, or one sensor per burner (any number). Gas is counted per entity running, so two burners use twice the rate of one.",
+          "runtime_threshold": "For numeric sensors only: running when the value is above this (e.g. 40 W).",
+          "rate_kg_h": "Starting estimate per running entity. With auto-learn on, each finished cylinder recalibrates it as cylinder kg ÷ burner-hours."
+        }
+      },
+      "weight": {
+        "title": "Weight sensor",
+        "description": "Read the remaining gas from a scale (load cell) under the cylinder.",
+        "data": {
+          "weight_entity": "Scale sensor",
+          "weight_method": "Method",
+          "tare_kg": "Empty weight (tare)",
+          "auto_renew": "Auto-renew when a new cylinder is placed"
+        },
+        "data_description": {
+          "weight_entity": "A numeric sensor with the scale reading, e.g. an ESPHome HX711 sensor. Units g, kg, lb or oz; no unit means kg. Use the raw gross weight, not a used-gas sensor.",
+          "weight_method": "Weight lost needs no tare: it counts what the scale loses after each Renew. Scale minus tare uses the empty weight stamped on the cylinder plus the scale platform.",
+          "tare_kg": "Only for Scale minus tare: the cylinder's empty weight plus anything else sitting on the scale.",
+          "auto_renew": "A jump of half a cylinder or more that holds for 5 minutes is treated as a new cylinder."
         }
       }
     },
@@ -51,6 +83,19 @@
         "12": "12 kg",
         "14": "14 kg",
         "50": "50 kg"
+      }
+    },
+    "usage_source": {
+      "options": {
+        "duration": "Days since change (average)",
+        "runtime": "Running time from a sensor",
+        "weight": "Weight from a scale sensor"
+      }
+    },
+    "weight_method": {
+      "options": {
+        "delta": "Weight lost since Renew (no tare needed)",
+        "absolute": "Scale minus tare"
       }
     }
   },

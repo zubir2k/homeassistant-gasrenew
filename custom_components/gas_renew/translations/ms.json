@@ -33,11 +33,43 @@
           "threshold_critical": "Kritikal pada atau bawah (%)",
           "m3_per_kg": "Isipadu gas sekilogram (m³)",
           "auto_learn": "Auto-belajar jangka hayat daripada penukaran tong",
-          "learn_samples": "Bilangan tong untuk dipuratakan"
+          "learn_samples": "Bilangan tong untuk dipuratakan",
+          "usage_source": "Sumber penggunaan"
         },
         "data_description": {
           "m3_per_kg": "Lebih kurang 0.54 untuk propana; campuran yang lebih banyak butana lebih rendah. Menukar nilai ini akan mengubah jumlah di papan pemuka Tenaga.",
-          "learn_samples": "Jangka hayat dikira sebagai purata bagi bilangan tong terkini ini."
+          "learn_samples": "Jangka hayat dikira sebagai purata bagi bilangan tong terkini ini.",
+          "usage_source": "Hari sejak tukar guna jangka hayat. Masa operasi hanya mengira gas semasa sensor menunjukkan dapur digunakan. Berat membaca penimbang di bawah tong."
+        }
+      },
+      "runtime": {
+        "title": "Masa operasi",
+        "description": "Gas hanya dikira semasa sensor ini menunjukkan dapur digunakan.",
+        "data": {
+          "runtime_entity": "Sensor operasi",
+          "runtime_threshold": "Ambang operasi",
+          "rate_kg_h": "Kadar gas setiap tungku semasa beroperasi"
+        },
+        "data_description": {
+          "runtime_entity": "Satu atau lebih entiti on/off atau nombor: sensor hud dapur, atau satu sensor bagi setiap tungku (berapa pun bilangannya). Gas dikira bagi setiap entiti yang beroperasi, jadi dua tungku guna dua kali ganda kadar satu tungku.",
+          "runtime_threshold": "Untuk sensor nombor sahaja: beroperasi apabila nilai melebihi ini (cth. 40 W).",
+          "rate_kg_h": "Anggaran awal bagi setiap entiti yang beroperasi. Dengan auto-belajar, setiap tong yang habis menentukur semula sebagai kg tong ÷ jam-tungku."
+        }
+      },
+      "weight": {
+        "title": "Sensor berat",
+        "description": "Baca baki gas daripada penimbang (load cell) di bawah tong.",
+        "data": {
+          "weight_entity": "Sensor penimbang",
+          "weight_method": "Kaedah",
+          "tare_kg": "Berat kosong (tare)",
+          "auto_renew": "Renew automatik apabila tong baharu diletakkan"
+        },
+        "data_description": {
+          "weight_entity": "Sensor nombor bacaan penimbang, cth. sensor HX711 ESPHome. Unit g, kg, lb atau oz; tiada unit dianggap kg. Guna berat kasar mentah, bukan sensor gas terpakai.",
+          "weight_method": "Berat berkurang tidak perlukan tare: ia mengira berat yang hilang selepas setiap Renew. Penimbang tolak tare guna berat kosong yang tertera pada tong serta platform penimbang.",
+          "tare_kg": "Untuk Penimbang tolak tare sahaja: berat kosong tong serta apa-apa lagi di atas penimbang.",
+          "auto_renew": "Kenaikan separuh tong atau lebih yang kekal selama 5 minit dianggap tong baharu."
         }
       }
     },
@@ -51,6 +83,19 @@
         "12": "12 kg",
         "14": "14 kg",
         "50": "50 kg"
+      }
+    },
+    "usage_source": {
+      "options": {
+        "duration": "Hari sejak tukar (purata)",
+        "runtime": "Masa operasi dari sensor",
+        "weight": "Berat dari sensor penimbang"
+      }
+    },
+    "weight_method": {
+      "options": {
+        "delta": "Berat berkurang sejak Renew (tanpa tare)",
+        "absolute": "Penimbang tolak tare"
       }
     }
   },

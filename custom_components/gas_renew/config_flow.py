@@ -77,6 +77,13 @@ class GasRenewConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            name = user_input[CONF_NAME].strip()
+            self._async_abort_entries_match({CONF_NAME: name})
+            if any(
+                e.title.strip().casefold() == name.casefold()
+                for e in self._async_current_entries()
+            ):
+                return self.async_abort(reason="already_configured")
             last = user_input[CONF_LAST_CHANGE]
             prev = user_input.get(CONF_PREVIOUS_CHANGE)
             try:
@@ -91,12 +98,13 @@ class GasRenewConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors[CONF_PREVIOUS_CHANGE] = "previous_after_last"
             else:
                 data = {
+                    CONF_NAME: name,
                     CONF_CYLINDER_KG: size,
                     CONF_DURATION: int(user_input[CONF_DURATION]),
                     CONF_LAST_CHANGE: last,
                     CONF_PREVIOUS_CHANGE: prev,
                 }
-                return self.async_create_entry(title=user_input[CONF_NAME], data=data)
+                return self.async_create_entry(title=name, data=data)
 
         today = dt_util.now().date().isoformat()
         schema = vol.Schema(
@@ -122,6 +130,49 @@ class GasRenewConfigFlow(ConfigFlow, domain=DOMAIN):
         )
         return self.async_show_form(
             step_id="user", data_schema=self.add_suggested_values_to_schema(schema, user_input), errors=errors
+        )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Let the user change the cylinder size on an existing entry."""
+        entry = self._get_reconfigure_entry()
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            try:
+                size = float(user_input[CONF_CYLINDER_KG])
+            except (TypeError, ValueError):
+                size = 0
+            if not 1 <= size <= 100:
+                errors[CONF_CYLINDER_KG] = "invalid_size"
+            else:
+                return self.async_update_reload_and_abort(
+                    entry,
+                    data_updates={CONF_CYLINDER_KG: size},
+                )
+
+        current_kg = entry.data.get(CONF_CYLINDER_KG, DEFAULT_CYLINDER_KG)
+        default_kg = (
+            str(int(current_kg))
+            if float(current_kg).is_integer()
+            else str(current_kg)
+        )
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_CYLINDER_KG, default=default_kg): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=CYLINDER_SIZES,
+                        custom_value=True,
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                        translation_key="cylinder_kg",
+                    )
+                ),
+            }
+        )
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self.add_suggested_values_to_schema(schema, user_input),
+            errors=errors,
         )
 
     @staticmethod

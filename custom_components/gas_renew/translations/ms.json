@@ -15,12 +15,23 @@
           "duration": "Berapa lama tong penuh biasanya bertahan. Auto-belajar akan memperhalusi nilai ini setiap kali anda tekan Renew.",
           "previous_change": "Jika diketahui, jarak antara dua tarikh ini digunakan sebagai data awal auto-belajar."
         }
+      },
+      "reconfigure": {
+        "title": "Konfigurasi semula tong gas",
+        "description": "Kemas kini saiz tong gas.",
+        "data": {
+          "cylinder_kg": "Saiz tong (kg)"
+        }
       }
     },
     "error": {
       "invalid_size": "Masukkan saiz tong antara 1 hingga 100 kg.",
       "future_date": "Tarikh tukar terakhir tidak boleh pada masa hadapan.",
       "previous_after_last": "Tarikh tukar sebelumnya mesti sebelum tarikh tukar terakhir."
+    },
+    "abort": {
+      "already_configured": "Tong gas dengan nama ini sudah dikonfigurasikan.",
+      "reconfigure_successful": "Saiz tong dikemas kini."
     }
   },
   "options": {
@@ -172,6 +183,18 @@
   "exceptions": {
     "not_gas_renew_entity": {
       "message": "{entity_id} bukan entiti Gas Renew."
+    },
+    "entry_not_loaded": {
+      "message": "Entri Gas Renew belum dimuatkan."
+    },
+    "future_date": {
+      "message": "Tarikh tidak boleh pada masa hadapan."
+    },
+    "date_before_last_change": {
+      "message": "Tarikh mesti selepas tarikh tukar sebelumnya."
+    },
+    "invalid_previous_change": {
+      "message": "Tarikh tukar sebelumnya mesti sebelum tarikh tukar terakhir."
     }
   }
 }

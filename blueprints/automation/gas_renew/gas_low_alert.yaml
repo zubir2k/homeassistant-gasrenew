@@ -62,7 +62,8 @@ conditions:
         value_template: "{{ trigger.id != 'early' }}"
       - condition: template
         value_template: >-
-          {{ (as_datetime(states(empty_sensor)) | as_local).date()
+          {% set dt = as_datetime(states(empty_sensor), none) %}
+          {{ dt is not none and (dt | as_local).date()
              == (now() + timedelta(days=days_before | int)).date() }}
 
 actions: !input actions

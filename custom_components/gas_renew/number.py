@@ -10,6 +10,8 @@ from . import GasRenewConfigEntry
 from .const import MAX_DURATION, MIN_DURATION
 from .entity import GasRenewEntity
 
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,

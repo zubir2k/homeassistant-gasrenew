@@ -1,6 +1,7 @@
 """Constants for Gas Renew."""
 from __future__ import annotations
 
+from enum import StrEnum
 from typing import Final
 
 DOMAIN: Final = "gas_renew"
@@ -78,5 +79,18 @@ STORAGE_KEY: Final = "gas_renew.{entry_id}"
 CARD_FILENAME: Final = "gas-renew-card.js"
 CARD_URL: Final = f"/{DOMAIN}/{CARD_FILENAME}"
 
-SERVICE_RENEW: Final = "renew"
-ATTR_DATE: Final = "date"
+
+class GasRenewService(StrEnum):
+    """Services for Gas Renew."""
+
+    RENEW = "renew"
+
+
+class GasRenewServiceArgument(StrEnum):
+    """Service arguments for Gas Renew."""
+
+    DATE = "date"
+
+
+SERVICE_RENEW: Final = GasRenewService.RENEW
+ATTR_DATE: Final = GasRenewServiceArgument.DATE

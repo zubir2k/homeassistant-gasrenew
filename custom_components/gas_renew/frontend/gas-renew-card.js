@@ -77,7 +77,6 @@ class GasRenewCard extends HTMLElement {
     this._config = { mode: "full", confirm_renew: true, ...config };
     this._sig = null;
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
-    this._sig = null;
   }
 
   set hass(hass) {

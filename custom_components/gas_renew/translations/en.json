@@ -15,12 +15,23 @@
           "duration": "How long a full cylinder usually lasts you. Auto-learn refines this every time you press Renew.",
           "previous_change": "If you know it, the gap between the two dates seeds auto-learn."
         }
+      },
+      "reconfigure": {
+        "title": "Reconfigure cylinder",
+        "description": "Update the cylinder size.",
+        "data": {
+          "cylinder_kg": "Cylinder size (kg)"
+        }
       }
     },
     "error": {
       "invalid_size": "Enter a cylinder size between 1 and 100 kg.",
       "future_date": "The last change can't be in the future.",
       "previous_after_last": "The previous change must be before the last change."
+    },
+    "abort": {
+      "already_configured": "A cylinder with this name is already configured.",
+      "reconfigure_successful": "Cylinder size updated."
     }
   },
   "options": {
@@ -172,6 +183,18 @@
   "exceptions": {
     "not_gas_renew_entity": {
       "message": "{entity_id} is not a Gas Renew entity."
+    },
+    "entry_not_loaded": {
+      "message": "The Gas Renew entry is not loaded."
+    },
+    "future_date": {
+      "message": "The date cannot be in the future."
+    },
+    "date_before_last_change": {
+      "message": "The date must be after the previous change date."
+    },
+    "invalid_previous_change": {
+      "message": "The previous change must be before the last change."
     }
   }
 }

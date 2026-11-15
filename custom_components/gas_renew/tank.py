@@ -11,6 +11,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_ON, UnitOfMass
 from homeassistant.core import CALLBACK_TYPE, Event, EventStateChangedData, HomeAssistant, callback
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.event import (
     async_track_state_change_event,
     async_track_time_change,
@@ -21,6 +22,7 @@ from homeassistant.util import dt as dt_util
 from homeassistant.util.unit_conversion import MassConverter
 
 from .const import (
+    DOMAIN,
     CONF_AUTO_LEARN,
     CONF_CYLINDER_KG,
     CONF_DURATION,
@@ -185,7 +187,8 @@ class GasTank:
             self._unsub_weight = async_track_state_change_event(
                 self.hass, [self.weight_entity], self._handle_weight_change
             )
-            self._weight_reading(self.hass.states.get(self.weight_entity))
+            if self._weight_reading(self.hass.states.get(self.weight_entity)):
+                self._store.async_delay_save(self._data_to_save, SAVE_DELAY)
         self._accrue()
         self._unsub_accrual = async_track_time_interval(
             self.hass, self._handle_accrual, ACCRUAL_INTERVAL
@@ -354,7 +357,7 @@ class GasTank:
         unit = state.attributes.get("unit_of_measurement") or UnitOfMass.KILOGRAMS
         try:
             return MassConverter.convert(value, unit, UnitOfMass.KILOGRAMS)
-        except Exception:  # noqa: BLE001 - unknown unit, assume kg
+        except HomeAssistantError:
             return value
 
     @callback
@@ -374,9 +377,11 @@ class GasTank:
         self._weight_samples.append(raw)
         gross = median_low(self._weight_samples)
 
+        anchored = False
         if self.gross_at_renew is None:
             # First reading for this cylinder: anchor it to what we believe is used.
             self.gross_at_renew = gross + self.cylinder_used_kg
+            anchored = True
         ref = self.gross_kg if self.gross_kg is not None else gross
         jump = gross - ref
         if -jump >= self.cylinder_kg * AUTO_RENEW_FRACTION:
@@ -398,10 +403,15 @@ class GasTank:
         else:
             remaining = self.cylinder_kg - (self.gross_at_renew - gross)
         used = min(self.cylinder_kg, max(0.0, self.cylinder_kg - remaining))
+        if anchored and self.weight_method == WEIGHT_ABSOLUTE:
+            # First scale reading in absolute mode overrides any duration-seeded estimate.
+            self.cylinder_used_kg = round(used, 4)
+            self._add_weight_point()
+            return True
         # Gas only goes one way: ignore upward drift, count only new use.
         add = used - self.cylinder_used_kg
         if add <= 0:
-            return False
+            return anchored
         self.cylinder_used_kg = used
         self.lifetime_kg += add
         self._add_weight_point()
@@ -435,9 +445,12 @@ class GasTank:
             if self.gross_at_renew is not None:
                 self.gross_at_renew += gross - self.gross_kg
             self.gross_kg = gross
+            self._store.async_delay_save(self._data_to_save, SAVE_DELAY)
             return
         _LOGGER.info("Weight jumped %.1f kg; treating it as a new cylinder", gross - self.gross_kg)
-        self.hass.async_create_task(self.async_renew(gross=gross))
+        self.entry.async_create_background_task(
+            self.hass, self.async_renew(gross=gross), "gas_renew_auto_renew"
+        )
 
     def _add_weight_point(self) -> None:
         now = dt_util.utcnow()
@@ -606,10 +619,23 @@ class GasTank:
     async def async_renew(self, on: date | None = None, gross: float | None = None) -> None:
         """A new cylinder was fitted (today unless a date is given)."""
         new_date = on or self.today
+        if new_date > self.today:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="future_date",
+            )
+        actual = (new_date - self.last_change).days
+        if actual < 0:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="date_before_last_change",
+            )
+        if actual == 0 and gross is None:
+            _LOGGER.debug("Same-day renew ignored")
+            return
         # The old cylinder is empty now: count whatever the estimate had not
         # yet accrued, so the lifetime total equals cylinders actually used.
         self._accrue()
-        actual = (new_date - self.last_change).days
         if actual >= 1 and not self.weight_mode:  # the scale already counted real use
             self.lifetime_kg += max(0.0, self.cylinder_kg - self.cylinder_used_kg)
         # Runtime mode: the whole cylinder went in this many running hours.
@@ -675,6 +701,16 @@ class GasTank:
         self._notify()
 
     async def async_set_last_change(self, value: date) -> None:
+        if value > self.today:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="future_date",
+            )
+        if self.previous_change is not None and value <= self.previous_change:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="date_before_last_change",
+            )
         self._accrue()
         self.last_change = value
         if self.measured_mode:  # used kg comes from the sensor, not the date
@@ -689,6 +725,11 @@ class GasTank:
         self._notify()
 
     async def async_set_previous_change(self, value: date) -> None:
+        if value >= self.last_change:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="invalid_previous_change",
+            )
         self.previous_change = value
         await self.async_save()
         self._notify()

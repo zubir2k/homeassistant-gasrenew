@@ -8,14 +8,25 @@ import voluptuous as vol
 
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import ATTR_ENTITY_ID, Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv, entity_registry as er
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 
-from .const import ATTR_DATE, CARD_FILENAME, CARD_URL, DOMAIN, SERVICE_RENEW
+from .const import (
+    ATTR_DATE,
+    CARD_FILENAME,
+    CARD_URL,
+    DOMAIN,
+    SERVICE_RENEW,
+    STORAGE_KEY,
+    STORAGE_VERSION,
+    GasRenewService,
+    GasRenewServiceArgument,
+)
 from .tank import GasTank
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,7 +46,7 @@ type GasRenewConfigEntry = ConfigEntry[GasTank]
 RENEW_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-        vol.Optional(ATTR_DATE): cv.date,
+        vol.Optional(GasRenewServiceArgument.DATE): cv.date,
     }
 )
 
@@ -68,11 +79,16 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             entry_ids.add(reg.config_entry_id)
         for entry_id in entry_ids:
             entry = hass.config_entries.async_get_entry(entry_id)
-            if entry is None or not hasattr(entry, "runtime_data"):
-                continue
-            await entry.runtime_data.async_renew(call.data.get(ATTR_DATE))
+            if entry is None or entry.state is not ConfigEntryState.LOADED:
+                raise ServiceValidationError(
+                    translation_domain=DOMAIN,
+                    translation_key="entry_not_loaded",
+                )
+            await entry.runtime_data.async_renew(call.data.get(GasRenewServiceArgument.DATE))
 
-    hass.services.async_register(DOMAIN, SERVICE_RENEW, handle_renew, schema=RENEW_SCHEMA)
+    hass.services.async_register(
+        DOMAIN, GasRenewService.RENEW, handle_renew, schema=RENEW_SCHEMA
+    )
     return True
 
 
@@ -94,10 +110,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: GasRenewConfigEntry) ->
 
 async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Delete stored state when the entry is removed."""
-    from homeassistant.helpers.storage import Store
-
-    from .const import STORAGE_KEY, STORAGE_VERSION
-
     await Store(hass, STORAGE_VERSION, STORAGE_KEY.format(entry_id=entry.entry_id)).async_remove()
 
 

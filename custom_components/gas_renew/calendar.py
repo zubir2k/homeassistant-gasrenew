@@ -10,6 +10,8 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from . import GasRenewConfigEntry
 from .entity import GasRenewEntity
 
+PARALLEL_UPDATES = 0
+
 TEXT = {
     "en": {
         "cylinder": "Cylinder #{n}: lasted {days} days",
@@ -81,7 +83,7 @@ class GasRenewCalendar(GasRenewEntity, CalendarEntity):
                     end=max(end, start + timedelta(days=1)),
                     summary=t["cylinder"].format(n=n, days=cyl["days"]),
                     description=t["cylinder_desc"].format(start=cyl["start"], end=cyl["end"]),
-                    uid=self._uid(f"cyl-{cyl['start']}"),
+                    uid=self._uid(f"cyl-{n}-{cyl['start']}"),
                 )
             )
         current_no = len(tank.cylinders) + 1
@@ -93,7 +95,7 @@ class GasRenewCalendar(GasRenewEntity, CalendarEntity):
                 description=t["in_use_desc"].format(
                     day=tank.days_in_use, duration=tank.duration, pct=tank.percentage
                 ),
-                uid=self._uid(f"cyl-{tank.last_change.isoformat()}"),
+                uid=self._uid(f"cyl-current-{tank.last_change.isoformat()}"),
             )
         )
         events.append(self._empty_event())

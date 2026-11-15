@@ -22,6 +22,8 @@ from .const import DOMAIN, LEVELS
 from .entity import GasRenewEntity
 from .tank import GasTank
 
+PARALLEL_UPDATES = 0
+
 
 @dataclass(frozen=True, kw_only=True)
 class GasRenewSensorDescription(SensorEntityDescription):

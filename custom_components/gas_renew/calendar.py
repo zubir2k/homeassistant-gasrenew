@@ -5,7 +5,7 @@ from datetime import date, datetime, timedelta
 
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import GasRenewConfigEntry
 from .entity import GasRenewEntity
@@ -35,7 +35,7 @@ TEXT = {
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: GasRenewConfigEntry,
-    async_add_entities: AddConfigEntryEntitiesCallback,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     async_add_entities([GasRenewCalendar(entry.runtime_data, "refills")])
 

@@ -15,7 +15,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import PERCENTAGE, UnitOfMass, UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import GasRenewConfigEntry
 from .const import DOMAIN, LEVELS
@@ -83,7 +83,7 @@ SENSORS: tuple[GasRenewSensorDescription, ...] = (
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: GasRenewConfigEntry,
-    async_add_entities: AddConfigEntryEntitiesCallback,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     tank = entry.runtime_data
     async_add_entities(GasRenewSensor(tank, d) for d in SENSORS)

@@ -18,5 +18,5 @@
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/zubir2k/homeassistant-gasrenew/issues",
   "requirements": [],
-  "version": "1.2.2"
+  "version": "1.2.3"
 }

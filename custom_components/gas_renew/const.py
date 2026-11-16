@@ -92,5 +92,5 @@ class GasRenewServiceArgument(StrEnum):
     DATE = "date"
 
 
-SERVICE_RENEW: Final = GasRenewService.RENEW
-ATTR_DATE: Final = GasRenewServiceArgument.DATE
+SERVICE_RENEW: Final = "renew"
+ATTR_DATE: Final = "date"

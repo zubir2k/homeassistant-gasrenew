@@ -24,8 +24,6 @@ from .const import (
     SERVICE_RENEW,
     STORAGE_KEY,
     STORAGE_VERSION,
-    GasRenewService,
-    GasRenewServiceArgument,
 )
 from .tank import GasTank
 
@@ -46,7 +44,7 @@ type GasRenewConfigEntry = ConfigEntry[GasTank]
 RENEW_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-        vol.Optional(GasRenewServiceArgument.DATE): cv.date,
+        vol.Optional(ATTR_DATE): cv.date,
     }
 )
 
@@ -84,10 +82,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                     translation_domain=DOMAIN,
                     translation_key="entry_not_loaded",
                 )
-            await entry.runtime_data.async_renew(call.data.get(GasRenewServiceArgument.DATE))
+            await entry.runtime_data.async_renew(call.data.get(ATTR_DATE))
 
     hass.services.async_register(
-        DOMAIN, GasRenewService.RENEW, handle_renew, schema=RENEW_SCHEMA
+        DOMAIN, SERVICE_RENEW, handle_renew, schema=RENEW_SCHEMA
     )
     return True
 

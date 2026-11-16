@@ -39,6 +39,7 @@ async def test_user_flow_success(hass: HomeAssistant) -> None:
     assert result["data"][CONF_NAME] == "Kitchen Cylinder"
     assert result["data"][CONF_CYLINDER_KG] == 14.0
     assert result["data"][CONF_DURATION] == 60
+    await hass.async_block_till_done()
 
 
 async def test_user_flow_duplicate_abort(hass: HomeAssistant) -> None:
@@ -143,3 +144,4 @@ async def test_reconfigure_flow(hass: HomeAssistant) -> None:
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reconfigure_successful"
     assert entry.data[CONF_CYLINDER_KG] == 12.0
+    await hass.async_block_till_done()

@@ -6,7 +6,7 @@
  *   name: Kitchen LPG                  # optional, defaults to the device name
  *   confirm_renew: true                # optional, ask before renewing
  */
-const CARD_VERSION = "1.2.1";
+const CARD_VERSION = "1.2.5";
 
 const TEXT = {
   en: {
@@ -153,8 +153,11 @@ class GasRenewCard extends HTMLElement {
     const level = st.state;
     const pct = Number(a.percentage ?? 0);
     const color = FILL[level] || FILL.full;
-    const lvlText = t.levels[level] || level;
+    const lvlText = esc(t.levels[level] || level);
     const days = Number(a.days_in_use ?? 0);
+    const cylinder_kg = Number(a.cylinder_kg ?? 0);
+    const duration = Number(a.duration ?? 0);
+    const remaining_kg = Number(a.remaining_kg ?? 0).toFixed(1);
 
     let alertType = "success";
     let msg;
@@ -162,7 +165,7 @@ class GasRenewCard extends HTMLElement {
     if (days === 0) msg = t.renewed(name);
     else if (level === "low") { alertType = "warning"; msg = t.warn(name, lvlText.toUpperCase()); }
     else if (level === "critical") { alertType = "error"; msg = t.warn(name, lvlText.toUpperCase()); }
-    else msg = t.good(days, this._fmtDate(a.last_change, true));
+    else msg = t.good(days, esc(this._fmtDate(a.last_change, true)));
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -200,17 +203,17 @@ class GasRenewCard extends HTMLElement {
           ${cylinderSvg(pct, color)}
           <div style="flex:1;min-width:0">
             <div class="pct">${pct}%</div>
-            <div class="sub">${t.left(Number(a.remaining_kg).toFixed(1), a.cylinder_kg)}</div>
+            <div class="sub">${t.left(remaining_kg, cylinder_kg)}</div>
             <div class="bar"><div></div></div>
             <div class="meta">
-              ${t.day(days, a.duration)}<br/>
-              ${t.empty} <b>${this._fmtDate(a.expected_empty, false)}</b>
+              ${t.day(days, duration)}<br/>
+              ${t.empty} <b>${esc(this._fmtDate(a.expected_empty, false))}</b>
             </div>
           </div>
         </div>`}
         <ha-alert alert-type="${alertType}">${msg}</ha-alert>
         <div class="foot">
-          <div class="last">${compact ? "" : `${t.last} ${this._fmtDate(a.last_change, false)}`}</div>
+          <div class="last">${compact ? "" : `${t.last} ${esc(this._fmtDate(a.last_change, false))}`}</div>
           <button id="renew"><ha-icon icon="mdi:refresh"></ha-icon>${t.renew}</button>
         </div>
       </ha-card>`;

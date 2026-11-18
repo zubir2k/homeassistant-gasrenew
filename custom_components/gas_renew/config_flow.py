@@ -78,6 +78,8 @@ class GasRenewConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         if user_input is not None:
             name = user_input[CONF_NAME].strip()
+            await self.async_set_unique_id(name.casefold())
+            self._abort_if_unique_id_configured()
             self._async_abort_entries_match({CONF_NAME: name})
             if any(
                 e.title.strip().casefold() == name.casefold()

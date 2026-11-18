@@ -17,7 +17,7 @@
   "integration_type": "device",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/zubir2k/homeassistant-gasrenew/issues",
+  "quality_scale": "bronze",
   "requirements": [],
-  "version": "1.2.6",
-  "quality_scale": "bronze"
+  "version": "1.2.6"
 }

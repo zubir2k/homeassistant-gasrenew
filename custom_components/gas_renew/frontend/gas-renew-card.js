@@ -6,7 +6,7 @@
  *   name: Kitchen LPG                  # optional, defaults to the device name
  *   confirm_renew: true                # optional, ask before renewing
  */
-const CARD_VERSION = "1.2.5";
+const CARD_VERSION = "1.2.7";
 
 const TEXT = {
   en: {
